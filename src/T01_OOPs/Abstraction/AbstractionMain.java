@@ -1,4 +1,4 @@
-package OOPs.Abstraction;
+package T01_OOPs.Abstraction;
 
 public class AbstractionMain {
     static void main(String[] args) {
