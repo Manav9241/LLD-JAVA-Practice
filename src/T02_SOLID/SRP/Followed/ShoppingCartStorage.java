@@ -1,7 +1,7 @@
 package T02_SOLID.SRP.Followed;
 
 public class ShoppingCartStorage {
-    ShoppingCart cart;
+    private ShoppingCart cart;
 
     public ShoppingCartStorage(ShoppingCart cart) {
         this.cart = cart;
