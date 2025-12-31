@@ -1,4 +1,4 @@
-package T02_SOLID.LSP;
+package T02_SOLID.LSP.Violated;
 
 import java.util.ArrayList;
 import java.util.List;

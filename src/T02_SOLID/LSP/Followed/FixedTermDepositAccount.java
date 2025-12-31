@@ -1,6 +1,6 @@
-package T02_SOLID.LSP;
+package T02_SOLID.LSP.Followed;
 
-public class FixedTermDepositAccount implements IAccount{
+public class FixedTermDepositAccount implements IDepositOnlyAccount{
     private double principle;
     private int timeOfMaturity;
 
@@ -10,7 +10,7 @@ public class FixedTermDepositAccount implements IAccount{
     }
 
     @Override
-    public void Deposit(double money) {
+    public void DepositMoney(double money) {
         if(principle > 0.00) {
             System.out.println("FixedTermDepositAccount: Balance already set");
             return;
@@ -18,10 +18,5 @@ public class FixedTermDepositAccount implements IAccount{
 
         principle += money;
         System.out.println("FixedTermDepositAccount: Principal Balance Set to: " + principle);
-    }
-
-    @Override
-    public void Withdraw(double money) {
-        throw new UnsupportedOperationException("FixedTermDepositAccount: Withdrawal of Principle NOT ALLOWED");
     }
 }

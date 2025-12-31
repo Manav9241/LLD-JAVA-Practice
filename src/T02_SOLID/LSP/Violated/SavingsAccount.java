@@ -1,4 +1,4 @@
-package T02_SOLID.LSP;
+package T02_SOLID.LSP.Violated;
 
 public class SavingsAccount implements IAccount{
     private double balance;

@@ -1,4 +1,4 @@
-package T02_SOLID.LSP;
+package T02_SOLID.LSP.Violated;
 
 public interface IAccount {
     void Deposit(double money);
