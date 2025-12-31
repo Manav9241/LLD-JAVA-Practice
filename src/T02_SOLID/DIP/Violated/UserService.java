@@ -1,8 +1,8 @@
 package T02_SOLID.DIP.Violated;
 
 public class UserService {
-    private MongoDB mongoDB;
-    private SQLDB sql;
+    private final MongoDB mongoDB;
+    private final SQLDB sql;
 
     public UserService(MongoDB mongoDB, SQLDB sql) {
         this.mongoDB = mongoDB;
