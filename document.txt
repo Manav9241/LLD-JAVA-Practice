@@ -1,5 +1,0 @@
-Hello World
-[Image: picture.jpg ]
-New Text Field
-[Image: photo.png ]
-This is a document editor
