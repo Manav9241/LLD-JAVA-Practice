@@ -1,11 +1,8 @@
 package P01_GoogleDocs.GoodDesign;
 
-import P01_GoogleDocs.GoodDesign.Persistence.CloudStorage;
 import P01_GoogleDocs.GoodDesign.Persistence.FileStorage;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class GoodDesignMain {
     public static void main(String[] args) {
