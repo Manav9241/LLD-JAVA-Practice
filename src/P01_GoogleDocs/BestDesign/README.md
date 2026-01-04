@@ -10,8 +10,7 @@ This package demonstrates the best-practice implementation of a Document Editor 
 BestDesign/
 ├── Document.java                    # Core document model
 ├── DocumentEditor.java              # Main editor facade
-├── BestDesignMain.java             # Demo application (PlainText)
-├── HTMLRendererDemo.java           # Demo application (HTML)
+├── BestDesignMain.java             # Demo application
 ├── DocumentElements/               # Element types package
 │   ├── IDocumentElement.java       # Element interface
 │   ├── DocumentElementFactory.java # Factory for creating elements
@@ -55,26 +54,20 @@ IDocumentElement element = DocumentElementFactory.createTextElement("text");
 - Swap storage backends (File, Cloud, Database) without modification
 - Each strategy is independently testable
 
-**Example - PlainTextRenderer vs HTMLRenderer**:
+**Example**:
 ```java
-// Plain text output
-DocumentEditor plainEditor = new DocumentEditor(
+// Use PlainTextRenderer
+DocumentEditor editor = new DocumentEditor(
     new FileStorage(),
     new PlainTextRenderer()  // Simple delegation to document.render()
 );
 
-// HTML output - same API, different format!
+// Use HTMLRenderer - demonstrates why getElements() is needed
 DocumentEditor htmlEditor = new DocumentEditor(
     new FileStorage(),
-    new HTMLRenderer()  // Uses document.getElements() for type-specific formatting
+    new HTMLRenderer()  // Uses document.getElements() for type-specific tags
 );
 ```
-
-**Why Two Rendering Approaches?**
-- **PlainTextRenderer**: Calls `document.render()` for simple concatenation
-- **HTMLRenderer**: Calls `document.getElements()` to inspect types and apply HTML tags
-- This demonstrates why `Document.getElements()` exists even though PlainTextRenderer doesn't use it
-- See `HTMLRenderer.java` for comprehensive comments on this design decision
 
 ### 3. **Composite Pattern** (Document + IDocumentElement)
 **Purpose**: Treat individual elements and compositions uniformly.
@@ -171,56 +164,6 @@ DocumentEditor editor = new DocumentEditor(
     new PlainTextRenderer()
 );
 ```
-
-### HTMLRenderer - Multiple Output Formats
-```java
-// Same document, different output formats!
-
-// Plain Text Output
-DocumentEditor plainEditor = new DocumentEditor(
-    new FileStorage(),
-    new PlainTextRenderer()
-);
-plainEditor.addHeadingElement("Welcome");
-plainEditor.addTextElement("Content here");
-String plainText = plainEditor.renderDocument();
-// Output: ****WELCOME****\nContent here\n
-
-// HTML Output - Just swap the renderer!
-DocumentEditor htmlEditor = new DocumentEditor(
-    new FileStorage(),
-    new HTMLRenderer()
-);
-htmlEditor.addHeadingElement("Welcome");
-htmlEditor.addTextElement("Content here");
-String html = htmlEditor.renderDocument();
-// Output: <!DOCTYPE html><html>...<h1>WELCOME</h1><p>Content here</p>...</html>
-```
-
-**Run HTMLRendererDemo.java** to see side-by-side comparison of both renderers with the same document!
-
-### Why HTMLRenderer Uses getElements()
-The HTMLRenderer demonstrates a key architectural principle:
-
-```java
-// PlainTextRenderer - Simple approach
-public String render(Document document) {
-    return document.render();  // Just delegates
-}
-
-// HTMLRenderer - Complex approach  
-public String render(Document document) {
-    for (IDocumentElement elem : document.getElements()) {
-        if (elem instanceof HeadingElement)
-            html.append("<h1>...</h1>");
-        else if (elem instanceof TextElement)
-            html.append("<p>...</p>");
-        // ... different HTML tags for different types
-    }
-}
-```
-
-This is why `Document.getElements()` exists even though PlainTextRenderer doesn't use it - it enables sophisticated renderers like HTMLRenderer to apply format-specific logic based on element types.
 
 ### Caching Demonstration
 ```java
