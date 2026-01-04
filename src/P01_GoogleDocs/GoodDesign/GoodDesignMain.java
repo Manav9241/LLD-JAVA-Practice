@@ -18,7 +18,7 @@ public class GoodDesignMain {
         documentEditor.addTextElement("Image Description Text");
         documentEditor.addTabElement();
         documentEditor.addTextElement("To Do List");
-        documentEditor.addBulletListElement(Arrays.asList("Drink Water", "Groccery Shopping", "Daily Study Tracker"));
+        documentEditor.addBulletListElement(Arrays.asList("Drink Water", "Grocery Shopping", "Daily Study Tracker"));
 
         System.out.println(documentEditor.renderDocument());
         documentEditor.saveDocument();
