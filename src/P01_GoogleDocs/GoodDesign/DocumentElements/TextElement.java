@@ -8,7 +8,7 @@ public class TextElement implements IDocumentElement{
     }
 
     @Override
-    public String Render() {
+    public String render() {
         return text + "\n";
     }
 }

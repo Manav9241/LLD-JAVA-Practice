@@ -8,7 +8,7 @@ public class HeadingElement implements IDocumentElement{
     }
 
     @Override
-    public String Render() {
+    public String render() {
         return "****" + text.toUpperCase() + "****\n";
     }
 }

@@ -7,46 +7,43 @@ import java.util.List;
 
 public class DocumentEditor {
     private Document document;
-    private String renderedDocument;
-    private int renderedDocumentSize;
     private IDocumentPersistence documentPersistence;
 
     public DocumentEditor(IDocumentPersistence persistence) {
         this.document = new Document();
-        this.renderedDocument = "";
-        this.renderedDocumentSize = 0;
         this.documentPersistence = persistence;
     }
 
-    public void AddTextElement(String text) {
-        document.AddElement(new TextElement(text));
+    public void addTextElement(String text) {
+        document.addElement(new TextElement(text));
     }
 
-    public void AddImageElement(String filePath) {
-        document.AddElement(new ImageElement(filePath));
+    public void addImageElement(String filePath) {
+        document.addElement(new ImageElement(filePath));
     }
 
-    public void AddHeadingElement(String text) {
-        document.AddElement(new HeadingElement(text));
+    public void addHeadingElement(String text) {
+        document.addElement(new HeadingElement(text));
     }
 
-    public void AddBulletListElement(List<String> listItems) {
-        document.AddElement(new UnorderedListElement(listItems));
+    public void addBulletListElement(List<String> listItems) {
+        document.addElement(new UnorderedListElement(listItems));
     }
 
-    public void AddNextLineElement() {
-        document.AddElement(new NextLineElement());
+    public void addNextLineElement() {
+        document.addElement(new NextLineElement());
     }
 
-    public void AddTabElement() {
-        document.AddElement(new TabSpaceElement());
+    public void addTabElement() {
+        document.addElement(new TabSpaceElement());
     }
 
-    public String RenderDocument() {
-        return document.Render();
+    public String renderDocument() {
+        return document.render();
     }
 
-    public void SaveDocument() {
-        documentPersistence.Save();
+    public void saveDocument() {
+        String renderedContent = document.render();
+        documentPersistence.save(renderedContent);
     }
 }

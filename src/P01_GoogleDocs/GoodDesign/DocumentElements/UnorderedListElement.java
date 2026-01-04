@@ -11,7 +11,7 @@ public class UnorderedListElement implements IDocumentElement{
     }
 
     @Override
-    public String Render() {
+    public String render() {
         StringBuilder result = new StringBuilder();
         for(String listItem: listItems) {
             result.append("- " + listItem + "\n");

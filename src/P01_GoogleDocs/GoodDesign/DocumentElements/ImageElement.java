@@ -8,7 +8,7 @@ public class ImageElement implements IDocumentElement{
     }
 
     @Override
-    public String Render() {
+    public String render() {
         return "[Image: " + filePath + " ]\n";
     }
 }

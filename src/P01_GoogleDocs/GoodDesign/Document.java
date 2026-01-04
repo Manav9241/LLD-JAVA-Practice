@@ -12,14 +12,14 @@ public class Document {
         this.documentElements = new ArrayList<IDocumentElement>();
     }
 
-    public void AddElement(IDocumentElement element) {
+    public void addElement(IDocumentElement element) {
         documentElements.add(element);
     }
 
-    public String Render() {
+    public String render() {
         StringBuilder result = new StringBuilder();
         for(IDocumentElement element: documentElements) {
-            result.append(element.Render());
+            result.append(element.render());
         }
         return result.toString();
     }
