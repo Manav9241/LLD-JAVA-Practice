@@ -1,12 +1,16 @@
 package P01_GoogleDocs.GoodDesign;
 
 import P01_GoogleDocs.GoodDesign.Persistence.FileStorage;
+import P01_GoogleDocs.GoodDesign.Rendering.PlainTextRenderer;
 
 import java.util.Arrays;
 
 public class GoodDesignMain {
     public static void main(String[] args) {
-        DocumentEditor documentEditor = new DocumentEditor(new FileStorage());
+        DocumentEditor documentEditor = new DocumentEditor(
+            new FileStorage(), 
+            new PlainTextRenderer()
+        );
 
         documentEditor.addHeadingElement("Document_Heading");
         documentEditor.addNextLineElement();
