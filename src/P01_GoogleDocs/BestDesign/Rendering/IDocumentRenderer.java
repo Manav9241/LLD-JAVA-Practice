@@ -1,6 +1,6 @@
-package P01_GoogleDocs.GoodDesign.Rendering;
+package P01_GoogleDocs.BestDesign.Rendering;
 
-import P01_GoogleDocs.GoodDesign.Document;
+import P01_GoogleDocs.BestDesign.Document;
 
 /**
  * Interface for document rendering strategies.

@@ -1,4 +1,4 @@
-package P01_GoogleDocs.GoodDesign.DocumentElements;
+package P01_GoogleDocs.BestDesign.DocumentElements;
 
 public class HeadingElement implements IDocumentElement{
     private String text;
@@ -8,7 +8,7 @@ public class HeadingElement implements IDocumentElement{
     }
 
     @Override
-    public String Render() {
+    public String render() {
         return "****" + text.toUpperCase() + "****\n";
     }
 }

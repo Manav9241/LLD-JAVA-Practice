@@ -1,4 +1,4 @@
-package P01_GoogleDocs.GoodDesign.DocumentElements;
+package P01_GoogleDocs.BestDesign.DocumentElements;
 
 public class ImageElement implements IDocumentElement{
     private String filePath;
@@ -8,7 +8,7 @@ public class ImageElement implements IDocumentElement{
     }
 
     @Override
-    public String Render() {
+    public String render() {
         return "[Image: " + filePath + " ]\n";
     }
 }

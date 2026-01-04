@@ -1,4 +1,4 @@
-package P01_GoogleDocs.GoodDesign.DocumentElements;
+package P01_GoogleDocs.BestDesign.DocumentElements;
 
 import java.util.List;
 

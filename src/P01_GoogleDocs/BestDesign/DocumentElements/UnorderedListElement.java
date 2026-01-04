@@ -1,4 +1,4 @@
-package P01_GoogleDocs.GoodDesign.DocumentElements;
+package P01_GoogleDocs.BestDesign.DocumentElements;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ public class UnorderedListElement implements IDocumentElement{
     }
 
     @Override
-    public String Render() {
+    public String render() {
         StringBuilder result = new StringBuilder();
         for(String listItem: listItems) {
             result.append("- " + listItem + "\n");
