@@ -1,5 +1,9 @@
 package PP03_OrderManagementSystem;
 
+import PP03_OrderManagementSystem.CustomExceptions.DuplicateOrderException;
+import PP03_OrderManagementSystem.CustomExceptions.InvalidOrderStateException;
+import PP03_OrderManagementSystem.CustomExceptions.OrderNotFoundException;
+
 public class OrderService {
     private OrderRepository repository;
 
@@ -7,10 +11,9 @@ public class OrderService {
         repository = new OrderRepository();
     }
 
-    public void CreateOrder(String orderId) {
+    public void createOrder(String orderId) {
         if (repository.findOrderById(orderId) != null) {
-            System.out.println("Duplicate Order: Order Already Exists");
-            return;
+            throw new DuplicateOrderException(orderId);
         }
 
         Order newOrder = new Order(orderId);
@@ -18,30 +21,26 @@ public class OrderService {
         System.out.println("Order Created");
     }
 
-    public void CancelOrder(String orderId) {
+    public void cancelOrder(String orderId) {
         Order order = repository.findOrderById(orderId);
         if (order == null) {
-            System.out.println("Invalid Id: Order Not Found");
-            return;
+            throw new OrderNotFoundException(orderId);
         }
         if (order.getStatus().equals("SHIPPED")) {
-            System.out.println("Invalid State: Shipped Order Cannot be Cancelled");
-            return;
+            throw new InvalidOrderStateException("Invalid State: Shipped Order Cannot be Cancelled");
         }
         order.cancel();
         repository.saveToDB(order);
         System.out.println("Order Cancelled");
     }
 
-    public void ShipOrder(String orderId) {
+    public void shipOrder(String orderId) {
         Order order = repository.findOrderById(orderId);
         if (order == null) {
-            System.out.println("Invalid Id: Order Not Found");
-            return;
+            throw new OrderNotFoundException(orderId);
         }
         if (order.getStatus().equals("CANCELLED")) {
-            System.out.println("Invalid State: Cancelled Order Cannot be Shipped");
-            return;
+            throw new InvalidOrderStateException("Invalid State: Cancelled Order Cannot be Shipped");
         }
         order.ship();
         repository.saveToDB(order);

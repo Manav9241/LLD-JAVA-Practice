@@ -1,8 +1,5 @@
 package PP03_OrderManagementSystem;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class OrderManager {
     private OrderService orderService;
 
@@ -11,14 +8,26 @@ public class OrderManager {
     }
 
     public void CreateOrder(String id) {
-        orderService.CreateOrder(id);
+        try {
+            orderService.createOrder(id);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public void CancelOrder(String id) {
-        orderService.CancelOrder(id);
+        try {
+            orderService.cancelOrder(id);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public void ShipOrder(String id) {
-        orderService.ShipOrder(id);
+        try {
+            orderService.shipOrder(id);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
