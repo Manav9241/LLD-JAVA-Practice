@@ -1,7 +1,6 @@
 package PP03_OrderManagementSystem;
 
 import PP03_OrderManagementSystem.CustomExceptions.DuplicateOrderException;
-import PP03_OrderManagementSystem.CustomExceptions.InvalidOrderStateException;
 import PP03_OrderManagementSystem.CustomExceptions.OrderNotFoundException;
 
 public class OrderService {
