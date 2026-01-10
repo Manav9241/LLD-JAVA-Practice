@@ -24,11 +24,11 @@ public class OrderService {
             System.out.println("Invalid Id: Order Not Found");
             return;
         }
-        if (order.status.equals("SHIPPED")) {
+        if (order.getStatus().equals("SHIPPED")) {
             System.out.println("Invalid State: Shipped Order Cannot be Cancelled");
             return;
         }
-        order.status = "CANCELLED";
+        order.cancel();
         repository.saveToDB(order);
         System.out.println("Order Cancelled");
     }
@@ -39,11 +39,11 @@ public class OrderService {
             System.out.println("Invalid Id: Order Not Found");
             return;
         }
-        if (order.status.equals("CANCELLED")) {
+        if (order.getStatus().equals("CANCELLED")) {
             System.out.println("Invalid State: Cancelled Order Cannot be Shipped");
             return;
         }
-        order.status = "SHIPPED";
+        order.ship();
         repository.saveToDB(order);
         System.out.println("Order Shipped");
     }

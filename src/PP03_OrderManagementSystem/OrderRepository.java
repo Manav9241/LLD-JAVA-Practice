@@ -15,6 +15,6 @@ public class OrderRepository {
     }
 
     public void saveToDB(Order order) {
-        dbStore.put(order.id, order);
+        dbStore.put(order.getId(), order);
     }
 }
