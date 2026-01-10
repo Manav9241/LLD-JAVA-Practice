@@ -26,9 +26,6 @@ public class OrderService {
         if (order == null) {
             throw new OrderNotFoundException(orderId);
         }
-        if (order.getStatus().equals("SHIPPED")) {
-            throw new InvalidOrderStateException("Invalid State: Shipped Order Cannot be Cancelled");
-        }
         order.cancel();
         repository.saveToDB(order);
         System.out.println("Order Cancelled");
@@ -38,9 +35,6 @@ public class OrderService {
         Order order = repository.findOrderById(orderId);
         if (order == null) {
             throw new OrderNotFoundException(orderId);
-        }
-        if (order.getStatus().equals("CANCELLED")) {
-            throw new InvalidOrderStateException("Invalid State: Cancelled Order Cannot be Shipped");
         }
         order.ship();
         repository.saveToDB(order);
