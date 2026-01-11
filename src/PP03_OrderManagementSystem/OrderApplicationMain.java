@@ -4,19 +4,22 @@ public class OrderApplicationMain {
     public static void main(String[] args) {
         System.out.println("Order Management System");
 
-        OrderManager orderManager = new OrderManager();
+        // Dependency injection: wire up the dependencies
+        IOrderRepository repository = new OrderRepository();
+        IOrderService orderService = new OrderService(repository);
+        OrderController orderController = new OrderController(orderService);
 
-        orderManager.CancelOrder("ORD1");
-        orderManager.ShipOrder("ORD1");
+        orderController.cancelOrder("ORD1");
+        orderController.shipOrder("ORD1");
 
-        orderManager.CreateOrder("ORD1");
-        orderManager.CreateOrder("ORD1");
+        orderController.createOrder("ORD1");
+        orderController.createOrder("ORD1");
 
-        orderManager.CancelOrder("ORD1");
-        orderManager.ShipOrder("ORD1");
+        orderController.cancelOrder("ORD1");
+        orderController.shipOrder("ORD1");
 
-        orderManager.CreateOrder("ORD2");
-        orderManager.ShipOrder("ORD2");
-        orderManager.CancelOrder("ORD2");
+        orderController.createOrder("ORD2");
+        orderController.shipOrder("ORD2");
+        orderController.cancelOrder("ORD2");
     }
 }
