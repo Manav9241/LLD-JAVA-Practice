@@ -1,13 +1,13 @@
 package PP03_OrderManagementSystem;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class OrderRepository {
     private Map<String, Order> dbStore;
 
     public OrderRepository() {
-        dbStore = new HashMap<>();
+        dbStore = new ConcurrentHashMap<>();
     }
 
     public Order findOrderById(String orderId) {
