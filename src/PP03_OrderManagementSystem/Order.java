@@ -19,14 +19,14 @@ public class Order {
         return status;
     }
 
-    public synchronized void ship() {
+    public void ship() {
         if (status == OrderStatus.CANCELLED) {
             throw new InvalidOrderStateException("Invalid Order State: Cancelled Order Cannot be Shipped");
         }
         status = OrderStatus.SHIPPED;
     }
 
-    public synchronized void cancel() {
+    public void cancel() {
         if (status == OrderStatus.SHIPPED) {
             throw new InvalidOrderStateException("Invalid Order State: Shipped Order Cannot be Cancelled");
         }
