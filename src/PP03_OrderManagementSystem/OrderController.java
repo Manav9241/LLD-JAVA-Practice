@@ -2,16 +2,17 @@ package PP03_OrderManagementSystem;
 
 import PP03_OrderManagementSystem.CustomExceptions.OrderException;
 
-public class OrderManager {
-    private OrderService orderService;
+public class OrderController {
+    private IOrderService orderService;
 
-    public OrderManager() {
-        this.orderService = new OrderService();
+    public OrderController(IOrderService orderService) {
+        this.orderService = orderService;
     }
 
-    public void CreateOrder(String id) {
+    public void createOrder(String id) {
         try {
             orderService.createOrder(id);
+            System.out.println("Order Created");
         } catch (OrderException e) {
             System.out.println("Business Exception -> " + e.getMessage());
         } catch (RuntimeException e) {
@@ -19,9 +20,10 @@ public class OrderManager {
         }
     }
 
-    public void CancelOrder(String id) {
+    public void cancelOrder(String id) {
         try {
             orderService.cancelOrder(id);
+            System.out.println("Order Cancelled");
         } catch (OrderException e) {
             System.out.println("Business Exception -> " + e.getMessage());
         } catch (RuntimeException e) {
@@ -29,9 +31,10 @@ public class OrderManager {
         }
     }
 
-    public void ShipOrder(String id) {
+    public void shipOrder(String id) {
         try {
             orderService.shipOrder(id);
+            System.out.println("Order Shipped");
         } catch (OrderException e) {
             System.out.println("Business Exception -> " + e.getMessage());
         } catch (RuntimeException e) {
