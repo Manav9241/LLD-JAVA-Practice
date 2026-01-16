@@ -1,6 +1,8 @@
 package JavaPracticeProjects.PP03_OrderManagementSystem;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class OrderRepository implements IOrderRepository{
@@ -18,5 +20,10 @@ public class OrderRepository implements IOrderRepository{
     @Override
     public void save(Order order) {
         dbStore.put(order.getId(), order);
+    }
+
+    @Override
+    public List<String> getAllOrders() {
+        return new ArrayList<>(dbStore.keySet());
     }
 }
