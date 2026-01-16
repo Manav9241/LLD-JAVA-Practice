@@ -5,19 +5,24 @@ import JavaPracticeProjects.PP03_OrderManagementSystem.CustomExceptions.OrderNot
 
 public class OrderService implements IOrderService{
     private IOrderRepository repository;
+    private int orderCount = 0;
 
     public OrderService(IOrderRepository repository) {
         this.repository = repository;
     }
 
     @Override
-    public void createOrder(String orderId) {
+    public Order createOrder() {
+        String orderId = generateOrderId();
+
         if (repository.findOrderById(orderId) != null) {
             throw new DuplicateOrderException(orderId);
         }
 
         Order newOrder = new Order(orderId);
         repository.save(newOrder);
+
+        return newOrder;
     }
 
     @Override
@@ -38,5 +43,10 @@ public class OrderService implements IOrderService{
         }
         order.ship();
         repository.save(order);
+    }
+
+    private String generateOrderId() {
+        orderCount += 1;
+        return "ORD-" + orderCount;
     }
 }

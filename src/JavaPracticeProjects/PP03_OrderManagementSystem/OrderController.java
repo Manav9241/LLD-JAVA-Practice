@@ -9,10 +9,10 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    public void createOrder(String id) {
+    public void createOrder() {
         try {
-            orderService.createOrder(id);
-            System.out.println("Order Created");
+            String newOrderId = orderService.createOrder().getId();
+            System.out.println("Order Created: " + newOrderId);
         } catch (OrderException e) {
             System.out.println("Business Exception -> " + e.getMessage());
         } catch (RuntimeException e) {

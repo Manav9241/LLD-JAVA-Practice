@@ -8,17 +8,17 @@ public class OrderApplicationMain {
         IOrderService orderService = new OrderService(orderRepository);
         OrderController orderController = new OrderController(orderService);
 
-        orderController.cancelOrder("ORD1");
-        orderController.shipOrder("ORD1");
+        orderController.cancelOrder("ORD-1");
+        orderController.shipOrder("ORD-1");
 
-        orderController.createOrder("ORD1");
-        orderController.createOrder("ORD1");
+        orderController.createOrder();
+        orderController.createOrder();
 
-        orderController.cancelOrder("ORD1");
-        orderController.shipOrder("ORD1");
+        orderController.cancelOrder("ORD-1");
+        orderController.shipOrder("ORD-1");
 
-        orderController.createOrder("ORD2");
-        orderController.shipOrder("ORD2");
-        orderController.cancelOrder("ORD2");
+        orderController.createOrder();
+        orderController.shipOrder("ORD-2");
+        orderController.cancelOrder("ORD-2");
     }
 }
