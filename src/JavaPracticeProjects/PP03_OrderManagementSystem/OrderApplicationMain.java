@@ -12,22 +12,44 @@ public class OrderApplicationMain {
         IOrderService orderService = new OrderService(orderRepository);
         OrderController orderController = new OrderController(orderService);
 
-        //region MULTITHREADED ORDER CREATING LOGIC
+        //region CONCURRENT SHIP/CANCEL ON SAME ORDER
 
-        int threadCount = 100;
-        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        Order newOrder = orderController.createOrder();
+        String orderId = newOrder.getId();
 
-        for (int i=0; i < threadCount; i++) {
-            executor.submit(() -> {
-                orderController.createOrder();
-            });
-        }
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        executor.submit(() -> {
+            orderController.shipOrder(orderId);
+        });
+        executor.submit(() -> {
+            orderController.cancelOrder(orderId);
+        });
 
         executor.shutdown();
-        executor.awaitTermination(10, TimeUnit.SECONDS);
+        executor.awaitTermination(5, TimeUnit.SECONDS);
 
-        System.out.println("\n****TOTAL ORDERS STORED****");
-        System.out.println(orderRepository.getAllOrders().size());
+        System.out.println("\n****Final Order Status****");
+        System.out.println(orderController.getOrder(orderId).getStatus());
+
+        //endregion
+
+        //region MULTITHREADED ORDER CREATING LOGIC
+
+//        int threadCount = 100;
+//        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+//
+//        for (int i=0; i < threadCount; i++) {
+//            executor.submit(() -> {
+//                orderController.createOrder();
+//            });
+//        }
+//
+//        executor.shutdown();
+//        executor.awaitTermination(10, TimeUnit.SECONDS);
+//
+//        System.out.println("\n****TOTAL ORDERS STORED****");
+//        System.out.println(orderRepository.getAllOrders().size());
 
         //endregion
 

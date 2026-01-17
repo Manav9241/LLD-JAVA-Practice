@@ -1,6 +1,7 @@
 package JavaPracticeProjects.PP03_OrderManagementSystem;
 
 import JavaPracticeProjects.PP03_OrderManagementSystem.CustomExceptions.OrderException;
+import JavaPracticeProjects.PP03_OrderManagementSystem.CustomExceptions.OrderNotFoundException;
 
 public class OrderController {
     private IOrderService orderService;
@@ -9,15 +10,32 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    public void createOrder() {
+    public Order createOrder() {
         try {
-            String newOrderId = orderService.createOrder().getId();
-            System.out.println("Order Created: " + newOrderId);
+            Order newOrder = orderService.createOrder();
+            System.out.println("Order Created: " + newOrder.getId());
+            return newOrder;
         } catch (OrderException e) {
             System.out.println("Business Exception -> " + e.getMessage());
         } catch (RuntimeException e) {
             System.out.println("System Error -> " + e.getMessage());
         }
+        return null;
+    }
+
+    public Order getOrder(String id) {
+        try {
+            Order order = orderService.getOrder(id);
+            if(order == null) {
+                throw new OrderNotFoundException(id);
+            }
+            return order;
+        } catch (OrderException e) {
+            System.out.println("Business Exception -> " + e.getMessage());
+        } catch (RuntimeException e) {
+            System.out.println("System Error -> " + e.getMessage());
+        }
+        return null;
     }
 
     public void cancelOrder(String id) {

@@ -26,6 +26,15 @@ public class OrderService implements IOrderService{
     }
 
     @Override
+    public Order getOrder(String orderId) {
+        Order order = repository.findOrderById(orderId);
+        if (order == null) {
+            throw new OrderNotFoundException(orderId);
+        }
+        return order;
+    }
+
+    @Override
     public void cancelOrder(String orderId) {
         Order order = repository.findOrderById(orderId);
         if (order == null) {
