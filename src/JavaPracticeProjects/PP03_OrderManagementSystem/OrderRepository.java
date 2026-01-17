@@ -19,7 +19,9 @@ public class OrderRepository implements IOrderRepository{
 
     @Override
     public void save(Order order) {
-        dbStore.put(order.getId(), order);
+        synchronized (dbStore) {
+            dbStore.put(order.getId(), order);
+        }
     }
 
     @Override

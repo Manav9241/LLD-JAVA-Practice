@@ -7,6 +7,8 @@ public class OrderService implements IOrderService{
     private IOrderRepository repository;
     private int orderCount = 0;
 
+    private final Object idlock = new Object();
+
     public OrderService(IOrderRepository repository) {
         this.repository = repository;
     }
@@ -55,7 +57,9 @@ public class OrderService implements IOrderService{
     }
 
     private String generateOrderId() {
-        orderCount += 1;
-        return "ORD-" + orderCount;
+        synchronized (idlock) {
+            orderCount += 1;
+            return "ORD-" + orderCount;
+        }
     }
 }
