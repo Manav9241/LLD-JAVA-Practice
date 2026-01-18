@@ -14,23 +14,23 @@ public class OrderApplicationMain {
 
         //region CONCURRENT SHIP/CANCEL ON SAME ORDER
 
-//        Order newOrder = orderController.createOrder();
-//        String orderId = newOrder.getId();
-//
-//        ExecutorService executor = Executors.newFixedThreadPool(2);
-//
-//        executor.submit(() -> {
-//            orderController.shipOrder(orderId);
-//        });
-//        executor.submit(() -> {
-//            orderController.cancelOrder(orderId);
-//        });
-//
-//        executor.shutdown();
-//        executor.awaitTermination(5, TimeUnit.SECONDS);
-//
-//        System.out.println("\n****Final Order Status****");
-//        System.out.println(orderController.getOrder(orderId).getStatus());
+        Order newOrder = orderController.createOrder();
+        String orderId = newOrder.getId();
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        executor.submit(() -> {
+            orderController.shipOrder(orderId);
+        });
+        executor.submit(() -> {
+            orderController.cancelOrder(orderId);
+        });
+
+        executor.shutdown();
+        executor.awaitTermination(5, TimeUnit.SECONDS);
+
+        System.out.println("\n****Final Order Status****");
+        System.out.println(orderController.getOrder(orderId).getStatus());
 
         //endregion
 

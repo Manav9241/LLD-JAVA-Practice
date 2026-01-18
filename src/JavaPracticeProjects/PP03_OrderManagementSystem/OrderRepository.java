@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class OrderRepository implements IOrderRepository{
     private Map<String, Order> dbStore;
 
     public OrderRepository() {
-        dbStore = new HashMap<>();
+        dbStore = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -19,9 +20,7 @@ public class OrderRepository implements IOrderRepository{
 
     @Override
     public void save(Order order) {
-        synchronized (dbStore) {
-            dbStore.put(order.getId(), order);
-        }
+        dbStore.putIfAbsent(order.getId(), order);
     }
 
     @Override
