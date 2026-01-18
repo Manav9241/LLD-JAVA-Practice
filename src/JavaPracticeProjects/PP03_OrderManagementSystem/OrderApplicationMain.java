@@ -20,10 +20,10 @@ public class OrderApplicationMain {
         ExecutorService executor = Executors.newFixedThreadPool(2);
 
         executor.submit(() -> {
-            orderController.shipOrder(orderId);
+            orderController.cancelOrder(orderId);
         });
         executor.submit(() -> {
-            orderController.cancelOrder(orderId);
+            orderController.shipOrder(orderId);
         });
 
         executor.shutdown();
