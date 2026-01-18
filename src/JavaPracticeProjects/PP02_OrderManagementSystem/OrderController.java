@@ -1,6 +1,6 @@
-package JavaPracticeProjects.PP03_OrderManagementSystem;
+package JavaPracticeProjects.PP02_OrderManagementSystem;
 
-import JavaPracticeProjects.PP03_OrderManagementSystem.CustomExceptions.OrderException;
+import JavaPracticeProjects.PP02_OrderManagementSystem.CustomExceptions.OrderException;
 
 public class OrderController {
     private IOrderService orderService;
