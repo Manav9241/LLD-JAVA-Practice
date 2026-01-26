@@ -1,6 +1,6 @@
-package JavaPracticeProjects.PP03_OrderManagementSystem;
+package JavaPracticeProjects.PP02_OrderManagementSystem;
 
-import JavaPracticeProjects.PP03_OrderManagementSystem.CustomExceptions.InvalidOrderStateException;
+import JavaPracticeProjects.PP02_OrderManagementSystem.CustomExceptions.InvalidOrderStateException;
 
 public class Order {
     private String id;
@@ -19,17 +19,25 @@ public class Order {
         return status;
     }
 
-    public void ship() {
+    public synchronized void ship() {
         if (status == OrderStatus.CANCELLED) {
             throw new InvalidOrderStateException("Invalid Order State: Cancelled Order Cannot be Shipped");
         }
+
+        // 👇 artificially widen race window
+        try { Thread.sleep(10); } catch (InterruptedException ignored) {}
+
         status = OrderStatus.SHIPPED;
     }
 
-    public void cancel() {
+    public synchronized void cancel() {
         if (status == OrderStatus.SHIPPED) {
             throw new InvalidOrderStateException("Invalid Order State: Shipped Order Cannot be Cancelled");
         }
+
+        // 👇 artificially widen race window
+        try { Thread.sleep(10); } catch (InterruptedException ignored) {}
+
         status = OrderStatus.CANCELLED;
     }
 }
