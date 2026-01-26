@@ -1,4 +1,4 @@
-package JavaPracticeProjects.PP02_ImmutableConfig.Mutable;
+package JavaPracticeProjects.Learning.ImmutableConfig.Mutable;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;

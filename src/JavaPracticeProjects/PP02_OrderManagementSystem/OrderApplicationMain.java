@@ -1,4 +1,4 @@
-package JavaPracticeProjects.PP03_OrderManagementSystem;
+package JavaPracticeProjects.PP02_OrderManagementSystem;
 
 public class OrderApplicationMain {
     public static void main(String[] args) {
