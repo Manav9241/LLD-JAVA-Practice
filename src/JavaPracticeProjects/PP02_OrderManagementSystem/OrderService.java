@@ -1,7 +1,7 @@
-package JavaPracticeProjects.PP03_OrderManagementSystem;
+package JavaPracticeProjects.PP02_OrderManagementSystem;
 
-import JavaPracticeProjects.PP03_OrderManagementSystem.CustomExceptions.DuplicateOrderException;
-import JavaPracticeProjects.PP03_OrderManagementSystem.CustomExceptions.OrderNotFoundException;
+import JavaPracticeProjects.PP02_OrderManagementSystem.CustomExceptions.DuplicateOrderException;
+import JavaPracticeProjects.PP02_OrderManagementSystem.CustomExceptions.OrderNotFoundException;
 
 public class OrderService implements IOrderService{
     private IOrderRepository repository;

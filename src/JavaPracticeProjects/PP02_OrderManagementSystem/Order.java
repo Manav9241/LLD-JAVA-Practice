@@ -1,6 +1,6 @@
-package JavaPracticeProjects.PP03_OrderManagementSystem;
+package JavaPracticeProjects.PP02_OrderManagementSystem;
 
-import JavaPracticeProjects.PP03_OrderManagementSystem.CustomExceptions.InvalidOrderStateException;
+import JavaPracticeProjects.PP02_OrderManagementSystem.CustomExceptions.InvalidOrderStateException;
 
 public class Order {
     private String id;
