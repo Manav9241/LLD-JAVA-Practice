@@ -1,4 +1,4 @@
-package JavaPracticeProjects.PP02_ImmutableConfig.Mutable;
+package JavaPracticeProjects.Learning.ImmutableConfig.Mutable;
 
 public class MutablePricingService {
     private final MutableConfig config;

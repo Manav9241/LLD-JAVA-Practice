@@ -1,4 +1,4 @@
-package JavaPracticeProjects.PP03_OrderManagementSystem;
+package JavaPracticeProjects.PP02_OrderManagementSystem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
