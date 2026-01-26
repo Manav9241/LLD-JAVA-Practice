@@ -1,4 +1,4 @@
-package JavaPracticeProjects.PP03_OrderManagementSystem.CustomExceptions;
+package JavaPracticeProjects.PP02_OrderManagementSystem.CustomExceptions;
 
 public class DuplicateOrderException extends OrderException {
     public DuplicateOrderException(String orderID) {

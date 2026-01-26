@@ -1,4 +1,4 @@
-package JavaPracticeProjects.PP02_ImmutableConfig.Immutable;
+package JavaPracticeProjects.Learning.ImmutableConfig.Immutable;
 
 public class ImmutablePricingService {
     private final ImmutableConfig config;
