@@ -1,0 +1,5 @@
+- Encapsulate what varies & Keep it separate from what remains same.
+- Solution to inheritance is not more inheritance
+- Composition should be favoured over inheritance
+- Code to interface &  not to concretion
+- DRY (Do Not repeat Yourself)
