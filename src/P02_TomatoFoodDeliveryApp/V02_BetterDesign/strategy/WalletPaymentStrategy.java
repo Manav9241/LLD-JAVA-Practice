@@ -12,9 +12,17 @@ public class WalletPaymentStrategy implements PaymentStrategy {
 
     @Override
     public boolean pay(double amount) {
-        System.out.println("Processing Wallet payment of ₹" + amount + " via " + walletId);
+        String maskedWalletId = maskWalletId();
+        System.out.println("Processing Wallet payment of ₹" + amount + " via " + maskedWalletId);
         System.out.println("Payment successful!");
         return true;
+    }
+
+    private String maskWalletId() {
+        if (walletId.length() <= 4) {
+            return "****";
+        }
+        return "***" + walletId.substring(walletId.length() - 4);
     }
 
     @Override

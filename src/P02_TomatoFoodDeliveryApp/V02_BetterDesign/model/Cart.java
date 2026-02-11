@@ -80,7 +80,7 @@ public class Cart {
     }
 
     public boolean isEmpty() {
-        return restaurant == null || itemQuantities.isEmpty();
+        return itemQuantities.isEmpty();
     }
 
     public void clearCart() {

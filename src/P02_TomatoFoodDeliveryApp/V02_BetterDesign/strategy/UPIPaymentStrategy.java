@@ -12,9 +12,20 @@ public class UPIPaymentStrategy implements PaymentStrategy {
 
     @Override
     public boolean pay(double amount) {
-        System.out.println("Processing UPI payment of ₹" + amount + " via " + upiId);
+        String maskedUpiId = maskUpiId();
+        System.out.println("Processing UPI payment of ₹" + amount + " via " + maskedUpiId);
         System.out.println("Payment successful!");
         return true;
+    }
+
+    private String maskUpiId() {
+        if (upiId.contains("@")) {
+            int atIndex = upiId.indexOf("@");
+            String prefix = upiId.substring(0, Math.min(3, atIndex));
+            String suffix = upiId.substring(atIndex);
+            return prefix + "***" + suffix;
+        }
+        return "***" + upiId.substring(Math.max(0, upiId.length() - 4));
     }
 
     @Override

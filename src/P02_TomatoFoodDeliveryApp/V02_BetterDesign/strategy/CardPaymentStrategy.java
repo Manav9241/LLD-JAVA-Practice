@@ -24,7 +24,7 @@ public class CardPaymentStrategy implements PaymentStrategy {
 
     private String maskCardNumber() {
         if (cardNumber.length() <= 4) {
-            return cardNumber;
+            return "****";
         }
         return "****-****-****-" + cardNumber.substring(cardNumber.length() - 4);
     }
