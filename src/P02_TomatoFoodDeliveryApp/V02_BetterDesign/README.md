@@ -5,288 +5,88 @@ Improved implementation of the food delivery application with better adherence t
 
 ## UML Class Diagram
 
-```mermaid
-classDiagram
-    %% Main Application
-    class TomatoMain {
-        +main(String[] args)$ void
-        -initializeRestaurants(RestaurantService restaurantService)$ void
-    }
-    
-    class TomatoFoodDeliveryApp {
-        -RestaurantService restaurantService
-        -OrderService orderService
-        -NotificationService notificationService
-        -PaymentStrategyFactory paymentStrategyFactory
-        +TomatoFoodDeliveryApp()
-        +getRestaurantService() RestaurantService
-        +getOrderService() OrderService
-        +getNotificationService() NotificationService
-        +searchRestaurantsByLocation(String location) List~Restaurant~
-        +addItemToCart(User user, Restaurant restaurant, String itemId) void
-        +createOrder(User user, OrderType orderType, LocalDateTime scheduledTime) Order
-        +processOrderPayment(Order order, PaymentMethod paymentMethod, String paymentDetails) boolean
-        +displayCart(User user) void
-        +displayOrders() void
-    }
-    
-    %% Enums
-    class OrderType {
-        <<enumeration>>
-        DELIVERY
-        PICKUP
-    }
-    
-    class PaymentMethod {
-        <<enumeration>>
-        UPI
-        CARD
-        WALLET
-    }
-    
-    class OrderStatus {
-        <<enumeration>>
-        PENDING
-        CONFIRMED
-        PREPARING
-        OUT_FOR_DELIVERY
-        DELIVERED
-        CANCELLED
-    }
-    
-    %% Model Classes
-    class User {
-        -String userId
-        -String name
-        -String location
-        -Cart cart
-        +User(String userId, String name, String location)
-        +getUserId() String
-        +getName() String
-        +getLocation() String
-        +setLocation(String location) void
-        +getCart() Cart
-        +equals(Object o) boolean
-        +hashCode() int
-        +toString() String
-    }
-    
-    class Cart {
-        -Restaurant restaurant
-        -Map~String, Integer~ itemQuantities
-        -Map~String, MenuItem~ items
-        +Cart()
-        +setRestaurant(Restaurant restaurant) void
-        +getRestaurant() Restaurant
-        +addItem(MenuItem item) void
-        +removeItem(String itemId) void
-        +getItems() List~MenuItem~
-        +getItemsWithQuantity() Map~MenuItem, Integer~
-        +getTotalCost() double
-        +isEmpty() boolean
-        +clearCart() void
-        +getItemCount() int
-    }
-    
-    class Restaurant {
-        -String id
-        -String name
-        -String location
-        -Map~String, MenuItem~ menu
-        +Restaurant(String id, String name, String location)
-        +getId() String
-        +getName() String
-        +getLocation() String
-        +addMenuItem(MenuItem item) void
-        +getMenuItem(String itemId) MenuItem
-        +getMenu() List~MenuItem~
-        +equals(Object o) boolean
-        +hashCode() int
-        +toString() String
-    }
-    
-    class MenuItem {
-        -String id
-        -String name
-        -double price
-        -String description
-        +MenuItem(String id, String name, double price, String description)
-        +getId() String
-        +getName() String
-        +getPrice() double
-        +getDescription() String
-        +equals(Object o) boolean
-        +hashCode() int
-        +toString() String
-    }
-    
-    class Order {
-        -String orderId
-        -User user
-        -Restaurant restaurant
-        -List~MenuItem~ items
-        -double totalAmount
-        -OrderType orderType
-        -LocalDateTime orderTime
-        -LocalDateTime scheduledTime
-        -OrderStatus status
-        -PaymentStrategy paymentStrategy
-        -Order(Builder builder)
-        +getOrderId() String
-        +getUser() User
-        +getRestaurant() Restaurant
-        +getItems() List~MenuItem~
-        +getTotalAmount() double
-        +getOrderType() OrderType
-        +getOrderTime() LocalDateTime
-        +getScheduledTime() LocalDateTime
-        +getStatus() OrderStatus
-        +setStatus(OrderStatus status) void
-        +getPaymentStrategy() PaymentStrategy
-        +setPaymentStrategy(PaymentStrategy paymentStrategy) void
-        +processPayment() boolean
-        +toString() String
-    }
-    
-    class Builder {
-        -User user
-        -Restaurant restaurant
-        -List~MenuItem~ items
-        -double totalAmount
-        -OrderType orderType
-        -LocalDateTime scheduledTime
-        -PaymentStrategy paymentStrategy
-        +user(User user) Builder
-        +restaurant(Restaurant restaurant) Builder
-        +items(List~MenuItem~ items) Builder
-        +orderType(OrderType orderType) Builder
-        +scheduledTime(LocalDateTime scheduledTime) Builder
-        +paymentStrategy(PaymentStrategy paymentStrategy) Builder
-        +build() Order
-    }
-    
-    %% Service Classes
-    class RestaurantService {
-        -List~Restaurant~ restaurants
-        +RestaurantService()
-        +addRestaurant(Restaurant restaurant) void
-        +getRestaurantById(String id) Restaurant
-        +searchByLocation(String location) List~Restaurant~
-        +getAllRestaurants() List~Restaurant~
-    }
-    
-    class OrderService {
-        -List~Order~ orders
-        +OrderService()
-        +placeOrder(Order order) void
-        +getOrderById(String orderId) Order
-        +getOrdersByUserId(String userId) List~Order~
-        +getAllOrders() List~Order~
-        +updateOrderStatus(String orderId, OrderStatus status) void
-    }
-    
-    class NotificationService {
-        -List~NotificationStrategy~ notificationStrategies
-        +NotificationService()
-        +addNotificationStrategy(NotificationStrategy strategy) void
-        +removeNotificationStrategy(NotificationStrategy strategy) void
-        +notifyOrderPlaced(Order order) void
-    }
-    
-    %% Factory Pattern
-    class PaymentStrategyFactory {
-        -Map~PaymentMethod, Function~ strategyCreators
-        +PaymentStrategyFactory()
-        +createPaymentStrategy(PaymentMethod method, String paymentDetails) PaymentStrategy
-        +registerPaymentMethod(PaymentMethod method, Function creator) void
-    }
-    
-    %% Strategy Pattern - Payment
-    class PaymentStrategy {
-        <<interface>>
-        +pay(double amount)* boolean
-        +getPaymentMethod()* String
-    }
-    
-    class UPIPaymentStrategy {
-        -String upiId
-        +UPIPaymentStrategy(String upiId)
-        +pay(double amount) boolean
-        +getPaymentMethod() String
-    }
-    
-    class CardPaymentStrategy {
-        -String cardNumber
-        +CardPaymentStrategy(String cardNumber)
-        +pay(double amount) boolean
-        +getPaymentMethod() String
-        -maskCardNumber() String
-    }
-    
-    class WalletPaymentStrategy {
-        -String walletId
-        +WalletPaymentStrategy(String walletId)
-        +pay(double amount) boolean
-        +getPaymentMethod() String
-    }
-    
-    %% Strategy Pattern - Notification
-    class NotificationStrategy {
-        <<interface>>
-        +sendNotification(Order order)* void
-    }
-    
-    class EmailNotificationStrategy {
-        +sendNotification(Order order) void
-    }
-    
-    class SMSNotificationStrategy {
-        +sendNotification(Order order) void
-    }
-    
-    %% Relationships
-    TomatoMain --> TomatoFoodDeliveryApp : uses
-    TomatoMain --> User : creates
-    
-    TomatoFoodDeliveryApp --> RestaurantService : has
-    TomatoFoodDeliveryApp --> OrderService : has
-    TomatoFoodDeliveryApp --> NotificationService : has
-    TomatoFoodDeliveryApp --> PaymentStrategyFactory : has
-    TomatoFoodDeliveryApp --> User : uses
-    TomatoFoodDeliveryApp --> Restaurant : uses
-    TomatoFoodDeliveryApp --> Order : creates
-    
-    User --> Cart : has
-    Cart --> Restaurant : references
-    Cart --> MenuItem : contains
-    
-    Restaurant --> MenuItem : contains
-    
-    Order --> User : has
-    Order --> Restaurant : has
-    Order --> MenuItem : contains
-    Order --> OrderType : uses
-    Order --> OrderStatus : uses
-    Order --> PaymentStrategy : uses
-    Order +-- Builder : contains
-    Builder --> Order : builds
-    
-    RestaurantService --> Restaurant : manages
-    OrderService --> Order : manages
-    NotificationService --> NotificationStrategy : uses
-    
-    PaymentStrategyFactory --> PaymentMethod : uses
-    PaymentStrategyFactory --> PaymentStrategy : creates
-    PaymentStrategyFactory --> UPIPaymentStrategy : creates
-    PaymentStrategyFactory --> CardPaymentStrategy : creates
-    PaymentStrategyFactory --> WalletPaymentStrategy : creates
-    
-    UPIPaymentStrategy ..|> PaymentStrategy : implements
-    CardPaymentStrategy ..|> PaymentStrategy : implements
-    WalletPaymentStrategy ..|> PaymentStrategy : implements
-    
-    EmailNotificationStrategy ..|> NotificationStrategy : implements
-    SMSNotificationStrategy ..|> NotificationStrategy : implements
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│                         MAIN APPLICATION LAYER                              │
+└────────────────────────────────────────────────────────────────────────────┘
+
+    TomatoMain
+        └── uses ──> TomatoFoodDeliveryApp
+                        │
+                        ├── has ──> RestaurantService
+                        ├── has ──> OrderService
+                        ├── has ──> NotificationService
+                        └── has ──> PaymentStrategyFactory
+
+┌────────────────────────────────────────────────────────────────────────────┐
+│                            MODEL CLASSES                                    │
+└────────────────────────────────────────────────────────────────────────────┘
+
+    User
+        └── has ──> Cart
+                      ├── references ──> Restaurant
+                      └── contains ──> MenuItem*
+
+    Restaurant
+        └── contains ──> MenuItem*
+
+    Order
+        ├── has ──> User
+        ├── has ──> Restaurant
+        ├── contains ──> MenuItem*
+        ├── uses ──> OrderType (enum)
+        ├── uses ──> OrderStatus (enum)
+        ├── uses ──> PaymentStrategy
+        └── contains ──> Builder (inner class)
+
+┌────────────────────────────────────────────────────────────────────────────┐
+│                            ENUMERATIONS                                     │
+└────────────────────────────────────────────────────────────────────────────┘
+
+    OrderType (enum): DELIVERY, PICKUP
+    PaymentMethod (enum): UPI, CARD, WALLET
+    OrderStatus (enum): PENDING, CONFIRMED, PREPARING, OUT_FOR_DELIVERY, 
+                        DELIVERED, CANCELLED
+
+┌────────────────────────────────────────────────────────────────────────────┐
+│                            SERVICE LAYER                                    │
+└────────────────────────────────────────────────────────────────────────────┘
+
+    RestaurantService
+        └── manages ──> Restaurant*
+
+    OrderService
+        └── manages ──> Order*
+
+    NotificationService
+        └── uses ──> NotificationStrategy*
+                          │
+                          ├──implements──> EmailNotificationStrategy
+                          └──implements──> SMSNotificationStrategy
+
+┌────────────────────────────────────────────────────────────────────────────┐
+│                   FACTORY PATTERN - PAYMENT STRATEGY                        │
+└────────────────────────────────────────────────────────────────────────────┘
+
+    PaymentStrategyFactory
+        ├── uses ──> PaymentMethod (enum)
+        └── creates ──> PaymentStrategy
+                          │
+                          ├──implements──> UPIPaymentStrategy
+                          ├──implements──> CardPaymentStrategy
+                          └──implements──> WalletPaymentStrategy
+
+┌────────────────────────────────────────────────────────────────────────────┐
+│                       STRATEGY PATTERNS SUMMARY                             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+    Payment Strategy Pattern:
+        <<interface>> PaymentStrategy
+            └── implementations: UPI, Card, Wallet
+
+    Notification Strategy Pattern:
+        <<interface>> NotificationStrategy
+            └── implementations: Email, SMS
 ```
 
 ## Key Architectural Improvements vs V01
