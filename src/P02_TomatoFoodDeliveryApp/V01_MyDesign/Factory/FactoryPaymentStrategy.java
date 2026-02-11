@@ -17,13 +17,16 @@ public class FactoryPaymentStrategy {
     }
 
     public IPaymentStrategy createPaymentStrategyObject(String paymentMethod, String accountDetails) {
+        if (paymentMethod == null) {
+            throw new IllegalArgumentException("Payment method must not be null");
+        }
+
         if (paymentMethod.equalsIgnoreCase("upi")) {
             return new UPIPaymentStrategy(accountDetails);
         } else if (paymentMethod.equalsIgnoreCase("card")) {
             return new CardPaymentStrategy(accountDetails);
         } else {
-            System.out.println("Wrong payment choice!!!");
-            return null;
+            throw new IllegalArgumentException("Unsupported payment method: " + paymentMethod);
         }
     }
 }
