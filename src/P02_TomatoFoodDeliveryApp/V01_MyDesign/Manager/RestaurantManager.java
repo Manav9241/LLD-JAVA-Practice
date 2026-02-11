@@ -9,6 +9,7 @@ public class RestaurantManager {
     private static RestaurantManager instance = null;
 
     private final List<Restaurant> restaurants;
+    private boolean initialized = false;
 
     private RestaurantManager() {
         this.restaurants = new ArrayList<>();
@@ -33,5 +34,13 @@ public class RestaurantManager {
             }
         }
         return result;
+    }
+
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    public void markAsInitialized() {
+        initialized = true;
     }
 }

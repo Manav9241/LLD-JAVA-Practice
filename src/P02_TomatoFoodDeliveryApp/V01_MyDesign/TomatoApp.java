@@ -18,7 +18,10 @@ public class TomatoApp {
     private final User user;
 
     public TomatoApp(User user) {
-        initializeRestaurants();
+        RestaurantManager restaurantManager = RestaurantManager.getInstance();
+        if (!restaurantManager.isInitialized()) {
+            initializeRestaurants();
+        }
         this.user = user;
         System.out.println("User: " + user.getName() + " is active.");
     }
@@ -43,6 +46,8 @@ public class TomatoApp {
         restaurantManager.addRestaurant(r1);
         restaurantManager.addRestaurant(r2);
         restaurantManager.addRestaurant(r3);
+        
+        restaurantManager.markAsInitialized();
     }
 
     public List<Restaurant> searchByLocation() {
