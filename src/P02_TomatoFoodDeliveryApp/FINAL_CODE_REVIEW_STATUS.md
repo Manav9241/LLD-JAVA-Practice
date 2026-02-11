@@ -38,7 +38,7 @@ Both implementations are **functional, tested, and documented**.
 All requirements from the problem statement have been met:
 
 ### ✅ User can search for Restaurants based on location
-- **V01**: Implemented via `RestaurantManager.SearchByLocation()`
+- **V01**: Implemented via `RestaurantManager.searchByLocation()`
 - **V02**: Implemented via `RestaurantService.searchByLocation()`
 - **Status**: ✅ Working in both versions
 
@@ -90,7 +90,7 @@ All requirements from the problem statement have been met:
    - String literals instead of enums for order types and payment methods
    - Static ID generation not thread-safe
    - Missing input validation in model classes
-   - Inconsistent naming (`SearchByLocation` should be `searchByLocation`)
+   - Inconsistent naming (now fixed: `searchByLocation`)
    - Unnecessary region comments cluttering code
 
 4. **Security**

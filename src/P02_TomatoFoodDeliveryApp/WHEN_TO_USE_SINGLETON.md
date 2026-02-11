@@ -167,7 +167,7 @@ public void testAddRestaurant() {
     RestaurantManager manager = RestaurantManager.getInstance();
     manager.addRestaurant(new Restaurant("R1", "Delhi"));
     
-    List<Restaurant> results = manager.SearchByLocation("Delhi");
+    List<Restaurant> results = manager.searchByLocation("Delhi");
     assertEquals(1, results.size());  // ✅ PASSES
 }
 
@@ -178,7 +178,7 @@ public void testSearchRestaurant() {
     // PROBLEM: Restaurant "R1" from Test 1 is STILL HERE!
     manager.addRestaurant(new Restaurant("R2", "Delhi"));
     
-    List<Restaurant> results = manager.SearchByLocation("Delhi");
+    List<Restaurant> results = manager.searchByLocation("Delhi");
     assertEquals(1, results.size());  // ❌ FAILS! Returns 2 (R1 + R2)
 }
 ```
@@ -223,7 +223,7 @@ But this adds overhead!
 public class TomatoApp {
     public List<Restaurant> searchRestaurants() {
         // Hardcoded dependency - can't replace or mock!
-        return RestaurantManager.getInstance().SearchByLocation(...);
+        return RestaurantManager.getInstance().searchByLocation(...);
     }
 }
 

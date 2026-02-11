@@ -25,7 +25,7 @@ public class RestaurantManager {
         restaurants.add(res);
     }
 
-    public List<Restaurant> SearchByLocation(String location) {
+    public List<Restaurant> searchByLocation(String location) {
         List<Restaurant> result = new ArrayList<>();
         for (Restaurant r: restaurants) {
             if (r.getAddress().equalsIgnoreCase(location)) {

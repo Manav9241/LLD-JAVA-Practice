@@ -34,7 +34,7 @@ public class RestaurantManager {
         restaurants.add(res);
     }
     
-    public List<Restaurant> SearchByLocation(String location) {
+    public List<Restaurant> searchByLocation(String location) {
         List<Restaurant> result = new ArrayList<>();
         for (Restaurant r: restaurants) {
             if (r.getAddress().equalsIgnoreCase(location)) {
@@ -131,7 +131,7 @@ public void testSearchRestaurant() {
 public class TomatoApp {
     public List<Restaurant> searchByLocation() {
         // Hardcoded dependency - can't mock or replace!
-        return RestaurantManager.getInstance().SearchByLocation(user.getAddress());
+        return RestaurantManager.getInstance().searchByLocation(user.getAddress());
     }
 }
 

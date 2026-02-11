@@ -46,7 +46,7 @@ public class TomatoApp {
     }
 
     public List<Restaurant> searchByLocation() {
-        return RestaurantManager.getInstance().SearchByLocation(user.getAddress());
+        return RestaurantManager.getInstance().searchByLocation(user.getAddress());
     }
 
     public void selectRestaurant(Restaurant r) {

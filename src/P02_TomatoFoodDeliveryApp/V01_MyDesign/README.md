@@ -133,7 +133,7 @@ classDiagram
         -RestaurantManager()
         +getInstance()$ RestaurantManager
         +addRestaurant(Restaurant res) void
-        +SearchByLocation(String location) List~Restaurant~
+        +searchByLocation(String location) List~Restaurant~
     }
     
     class OrderManager {
