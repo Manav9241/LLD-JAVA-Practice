@@ -3,6 +3,13 @@
 ## Overview
 Initial implementation of a food delivery application similar to Zomato, demonstrating core OOP principles and design patterns.
 
+## Architecture
+- **TomatoMain**: Client class that interacts with the application
+- **TomatoApp**: Orchestration class (Facade pattern) that coordinates the flow of all functionalities
+- **Manager Classes**: Singleton managers for restaurant and order data management
+- **Factory Pattern**: Used for creating payment strategies and orders
+- **Strategy Pattern**: Used for payment processing
+
 ## UML Class Diagram
 
 ```mermaid
