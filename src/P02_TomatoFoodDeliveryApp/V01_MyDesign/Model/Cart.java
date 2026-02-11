@@ -1,6 +1,7 @@
 package P02_TomatoFoodDeliveryApp.V01_MyDesign.Model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Cart {
@@ -29,7 +30,7 @@ public class Cart {
     }
 
     public List<MenuItem> getCartItems() {
-        return items;
+        return Collections.unmodifiableList(items);
     }
 
     public double getTotalCost() {
