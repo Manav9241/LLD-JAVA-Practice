@@ -76,9 +76,15 @@ public abstract class Order {
     }
 
     public void setItems(List<MenuItem> items) {
-        this.items = items;
+        // Make a defensive copy so later modifications to the source list
+        // (for example, clearing a cart) do not affect this order's items.
+        if (items == null) {
+            this.items = new ArrayList<>();
+        } else {
+            this.items = new ArrayList<>(items);
+        }
         this.totalAmount = 0;
-        for (MenuItem it: this.items) {
+        for (MenuItem it : this.items) {
             totalAmount += it.getPrice();
         }
     }
