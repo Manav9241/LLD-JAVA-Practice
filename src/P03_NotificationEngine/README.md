@@ -3,7 +3,7 @@
 ### Functional Requirements
 - **Plug and Play Model**: User can integrate the service with any application with minimal code changes
 - **Highly Extensible**: SMS, Email, Popup, etc.
-- **Notification should be highly extensible Dynamincally**.
+- **Notification should be highly extensible Dynamically**.
 - **Store all notifications**
 - **Logging**
 

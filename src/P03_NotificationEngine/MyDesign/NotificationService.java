@@ -9,11 +9,11 @@ import java.util.List;
 public class NotificationService {
     private static volatile NotificationService INSTANCE = null;
     private NotificationObservable observable;
-    private List<INotification> notificatonStorage;
+    private List<INotification> notificationStorage;
 
     private NotificationService() {
         observable = new NotificationObservable();
-        notificatonStorage = new ArrayList<>();
+        notificationStorage = new ArrayList<>();
     }
 
     public static NotificationService getInstance() {
@@ -27,10 +27,10 @@ public class NotificationService {
         return INSTANCE;
     }
 
-    public void sendNotification(INotification notificaton) {
-        observable.setNotification(notificaton);
+    public void sendNotification(INotification notification) {
+        observable.setNotification(notification);
 
-        notificatonStorage.add(notificaton);
+        notificationStorage.add(notification);
     }
 
     public NotificationObservable getObservable() {
