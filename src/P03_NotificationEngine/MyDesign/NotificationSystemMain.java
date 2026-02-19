@@ -17,22 +17,15 @@ public class NotificationSystemMain {
         // Create NotificationService.
         NotificationService notificationService = NotificationService.getInstance();
 
-        // Get Observable
-        NotificationObservable notificationObservable = notificationService.getObservable();
-
         // Create Logger Observer
-        Logger logger = new Logger(notificationObservable);
+        Logger logger = new Logger();
 
         // Create NotificationEngine observers.
-        NotificationEngine notificationEngine = new NotificationEngine(notificationObservable);
+        NotificationEngine notificationEngine = new NotificationEngine();
 
         notificationEngine.addNotificationStrategy(new EmailStrategy("random.person@gmail.com"));
         notificationEngine.addNotificationStrategy(new SMSStrategy("+91 9876543210"));
         notificationEngine.addNotificationStrategy(new PopupStrategy());
-
-        // Attach these observers.
-        notificationObservable.addObserver(logger);
-        notificationObservable.addObserver(notificationEngine);
 
         // Create a notification with decorators.
         INotification notification = new Notification("Your order has been shipped!");
