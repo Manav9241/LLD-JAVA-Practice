@@ -114,6 +114,7 @@ When Manav asks to "improve" or "make this better", it means:
 - Apply the SOLID/pattern principles currently being practiced
 - Introduce AT MOST 1-2 new concepts, flagged explicitly as new (if needed, else only use all the previously learnt patterns and concepts)
 - Keep the same style: no build tools, no frameworks, no production boilerplate
+- Keep the **design-sketch fidelity** — `System.out.println` represents real operations. This is a design practice repo, not a production project. "Improve" means improve the design (patterns, SOLID, abstractions), not the implementation depth or completeness.
 - Incremental improvement — V1 → V2, not V1 → production-grade
 - The learner implements it themselves — Copilot explains the WHY, learner writes the code
 
