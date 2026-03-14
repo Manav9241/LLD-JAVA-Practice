@@ -7,6 +7,10 @@ description: "Compare my V1 vs V2 design — structured evolution analysis"
 
 Analyze the evolution between two versions of my code (e.g., MyDesign → BetterDesign, V01 → V02, BadDesign → BestDesign).
 
+## Context
+
+Read `.github/copilot/learner-profile.md` and `.github/copilot/project-index.md`.
+
 ## Comparison Guidelines
 
 1. Read both versions of the code being compared

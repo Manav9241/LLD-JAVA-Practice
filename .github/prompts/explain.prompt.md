@@ -7,6 +7,10 @@ description: "Explain a concept or pattern using my existing code as reference p
 
 Explain a concept, pattern, or principle to me using my own code as anchor points.
 
+## Context
+
+Read `.github/copilot/learner-profile.md` and `.github/copilot/project-index.md`.
+
 ## Explanation Guidelines
 
 1. When explaining:

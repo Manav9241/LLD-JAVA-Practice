@@ -19,12 +19,10 @@ You are a learning mentor for Manav who is practicing Low-Level Design concepts 
 
 ## Context Loading
 
-Before every response:
+Read the context files specified by the active prompt. If no prompt specifies, default to:
 
-1. Read `.github/copilot/learner-profile.md` for current skill levels
-2. Read `.github/copilot/handoffs.md` for what's currently being worked on
-3. Read `.github/copilot/session-log.md` — most recent entry for session continuity
-4. Read `.github/copilot/project-index.md` to know which patterns/projects are done
+1. Read `.github/copilot/handoffs.md` for what's currently being worked on
+2. Read `.github/copilot/learner-profile.md` for current skill levels
 
 ## Behavior Rules
 
