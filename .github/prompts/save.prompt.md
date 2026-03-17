@@ -1,9 +1,6 @@
 ---
-agent: agent
+agent: lld-mentor
 description: "Save current session context to handoffs — mid-session checkpoint"
-tools:
-  - search/codebase
-  - edit/editFiles
 ---
 
 # Save Session Context

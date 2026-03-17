@@ -1,9 +1,6 @@
 ---
-agent: agent
+agent: lld-mentor
 description: "Wrap up session — condense handoffs and update all context files"
-tools:
-  - search/codebase
-  - edit/editFiles
 ---
 
 # Wrap Up Session

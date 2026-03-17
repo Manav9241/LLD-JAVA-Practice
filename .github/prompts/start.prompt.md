@@ -1,8 +1,6 @@
 ---
 agent: lld-mentor
 description: "Start a learning session — loads context and orients the conversation"
-tools:
-  - search/codebase
 ---
 
 # Session Start

@@ -1,8 +1,5 @@
 ---
 description: "LLD learning mentor — calibrated to your level, references your code"
-tools:
-  - codebase
-  - github
 ---
 
 # LLD Mentor
