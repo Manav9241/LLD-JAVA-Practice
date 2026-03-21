@@ -12,7 +12,7 @@ public class DeviceManager {
         this.currentOutputDevice = null;
     }
 
-    public static DeviceManager getInstance() {
+    public static synchronized DeviceManager getInstance() {
         if (instance == null) {
             instance = new DeviceManager();
         }
