@@ -1,461 +1,219 @@
 # DP06 — Command Design Pattern
 
-## What Is the Command Pattern?
+> **One-liner:** Wrap an operation in an object so you can queue, store, undo, or replay it without the executor knowing what it actually does.
 
-The Command pattern is a **behavioural design pattern** that answers one question:
+---
 
-> What if an operation — not just data — needed to be treated as an object?
+## The Problem
 
-Normally, when you want something done, you call a method directly:
+When you call a method directly — `orderBook.placeBuyOrder(...)` — it executes immediately, leaves no trace, cannot be undone, and cannot be deferred. The caller and the domain logic are welded together.
 
 ```java
-orderBook.placeBuyOrder("AAPL", 100, 182.50);
-```
-
-That call happens immediately, leaves no trace, cannot be undone, cannot be queued, cannot be re-executed later.
-
-The Command pattern says: **before you execute that operation, wrap it in an object first**.
-
-```java
-Command cmd = new PlaceBuyOrderCommand(orderBook, "AAPL", 100, 182.50);
-// The operation is now data. You decide when and how to use it.
-broker.submit(cmd);
-```
-
-Now the operation is a first-class value. You can:
-
-- **Execute it now or later** (schedule it, queue it)
-- **Store it** (audit log, history)
-- **Undo it** by calling a reverse operation defined on the same object
-- **Retry it** if it fails
-- **Serialize it** and send it over a network
-- **Compose multiple commands** into a batch that executes atomically
-
-That is the entire idea. The rest is mechanics.
-
----
-
-## The Core Structure
-
-There are four roles:
-
-```
-Client          → Creates the Command object, wires it up
-Command         → Interface: execute() and undo()
-ConcreteCommand → Knows the operation + holds all state to execute AND reverse it
-Receiver        → The domain object that does the actual work
-Invoker         → Accepts commands, decides when to run them, manages history
-```
-
-The critical separation: **the Invoker never knows what it is executing**. It only ever sees the `Command` interface. This is not just good design taste — it is what makes queueing, logging, and undo mechanically possible without the Invoker being rewritten each time a new operation is added.
-
----
-
-## Is This Pattern Just Academic Padding?
-
-No. It is one of the most heavily used patterns in real systems — it just often goes by a different name.
-
-| System                               | What Command looks like there                                                                                                                                                                 |
-| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Every RDBMS**                      | SQL statements are parsed into command objects and appended to a Write-Ahead Log before being applied. Rollback works because the log is a command history.                                   |
-| **Financial trading systems**        | Buy/sell instructions are `Order` objects — queued in an order book, matched, cancelled, audited. FIX protocol (the standard for inter-broker communication) is entirely structured this way. |
-| **Java `Runnable` / `Callable`**     | `Runnable` IS the Command interface. `ThreadPoolExecutor` IS the Invoker. Your task class IS the ConcreteCommand. You have been using Command pattern since day one of Java.                  |
-| **Java `ExecutorService`**           | `submit(Callable task)` — you wrap work in an object and hand it to a scheduler. That is Command.                                                                                             |
-| **Message queues (Kafka, RabbitMQ)** | Messages are command objects. The consumer is the Invoker. The handler is the Receiver.                                                                                                       |
-| **Git**                              | Each commit is a recorded, addressable, replayable command. `git revert` is `command.undo()`.                                                                                                 |
-| **Spring Batch**                     | Each `Step` in a batch job is a command object with built-in retry, skip, and rollback behaviour.                                                                                             |
-
-The pattern is everywhere in production. It just does not always announce itself.
-
----
-
-## A Real System: Stock Brokerage Order Execution Engine
-
-A retail brokerage (think Zerodha, Robinhood) processes trading instructions.
-
-Users submit orders — buy 100 shares of HDFC at market price, place a limit sell for TCS at ₹3800, cancel order #4421. These instructions arrive from millions of users and need to be:
-
-1. **Validated and queued** before market opens (pre-market orders)
-2. **Executed** when the market opens or the price condition is met
-3. **Audited** — regulators legally require a full log of every instruction
-4. **Cancellable** before execution
-5. **Retried** if the exchange gateway times out
-
-Calling `orderBook.placeOrder(...)` directly breaks down completely here. You have no queue, no audit log, no cancel, no retry — and adding any of those means hacking the caller code every time.
-
----
-
-## Implementation
-
-### The Receiver — `OrderBook.java`
-
-The domain object that does actual work. It knows how to place and cancel orders — nothing else.
-
-```java
-public class OrderBook {
-
-    public void placeBuyOrder(String ticker, int quantity, double price) {
-        System.out.printf("[OrderBook] BUY  %d x %s @ %.2f submitted to exchange%n",
-                quantity, ticker, price);
-    }
-
-    public void placeSellOrder(String ticker, int quantity, double price) {
-        System.out.printf("[OrderBook] SELL %d x %s @ %.2f submitted to exchange%n",
-                quantity, ticker, price);
-    }
-
-    public void cancelOrder(String orderId) {
-        System.out.printf("[OrderBook] Order %s CANCELLED%n", orderId);
-    }
-
-    public void reinstateOrder(String orderId) {
-        System.out.printf("[OrderBook] Order %s REINSTATED%n", orderId);
-    }
+// The caller knows EXACTLY what it's doing and to whom
+void handleUserClick(String type, OrderBook book) {
+    if (type.equals("BUY"))  book.placeBuyOrder("HDFC", 100, 1620.0);
+    if (type.equals("SELL")) book.placeSellOrder("TCS", 50, 3800.0);
+    // Want undo? Add another if-chain. Want queue? Another if-chain. Want audit? Another.
 }
 ```
 
----
+The moment you need **any** of these — queueing, undo, audit logging, retry, batching — you have to hack the caller every time. Each new operation type adds another branch. Each new capability (undo, log, queue) adds another layer of `if` checks inside the caller. The caller becomes a growing mess that knows everything about every operation.
 
-### The Command Interface — `TradeCommand.java`
-
-```java
-public interface TradeCommand {
-    void execute();
-    void undo();
-    String getAuditDescription();
-}
-```
-
----
-
-### Concrete Command — `PlaceBuyOrderCommand.java`
+**The fix:** Before executing an operation, wrap it in an object. Now the operation is data — you decide _when_ and _how_ to use it.
 
 ```java
-public class PlaceBuyOrderCommand implements TradeCommand {
-
-    private final OrderBook orderBook;
-    private final String orderId;
-    private final String ticker;
-    private final int quantity;
-    private final double price;
-
-    public PlaceBuyOrderCommand(OrderBook orderBook, String orderId,
-                                String ticker, int quantity, double price) {
-        this.orderBook = orderBook;
-        this.orderId   = orderId;
-        this.ticker    = ticker;
-        this.quantity  = quantity;
-        this.price     = price;
-    }
-
-    @Override
-    public void execute() {
-        orderBook.placeBuyOrder(ticker, quantity, price);
-    }
-
-    @Override
-    public void undo() {
-        orderBook.cancelOrder(orderId);
-    }
-
-    @Override
-    public String getAuditDescription() {
-        return String.format("BUY %d x %s @ %.2f [orderId=%s]", quantity, ticker, price, orderId);
-    }
-}
+Command cmd = new PlaceBuyOrderCommand(orderBook, "HDFC", 100, 1620.0);
+// The operation exists as an object now. You choose what to do with it.
+gateway.submit(cmd);   // queue it? execute it? log it? all of the above? — the cmd doesn't care.
 ```
+
+Once the operation is an object, you get six capabilities for free:
+
+1. **Execute later** — queue it, schedule it, defer until a condition is met
+2. **Store it** — persist to a log, database, or file for audit/compliance
+3. **Undo it** — each command carries its own reverse operation
+4. **Retry it** — if execution fails, resubmit the same object
+5. **Serialize it** — send it over a network, replay it on another machine
+6. **Compose it** — batch multiple commands into one atomic unit
+
+That is the entire idea. Everything else is mechanics.
 
 ---
 
-### Concrete Command — `PlaceSellOrderCommand.java`
+## The Four Roles
 
-```java
-public class PlaceSellOrderCommand implements TradeCommand {
-
-    private final OrderBook orderBook;
-    private final String orderId;
-    private final String ticker;
-    private final int quantity;
-    private final double price;
-
-    public PlaceSellOrderCommand(OrderBook orderBook, String orderId,
-                                 String ticker, int quantity, double price) {
-        this.orderBook = orderBook;
-        this.orderId   = orderId;
-        this.ticker    = ticker;
-        this.quantity  = quantity;
-        this.price     = price;
-    }
-
-    @Override
-    public void execute() {
-        orderBook.placeSellOrder(ticker, quantity, price);
-    }
-
-    @Override
-    public void undo() {
-        orderBook.cancelOrder(orderId);
-    }
-
-    @Override
-    public String getAuditDescription() {
-        return String.format("SELL %d x %s @ %.2f [orderId=%s]", quantity, ticker, price, orderId);
-    }
-}
 ```
+Receiver        → Domain object that does the real work (e.g., OrderBook, Light)
+Command         → Interface: execute() + undo()
+ConcreteCommand → Bridges Invoker → Receiver. Holds ALL state needed to execute AND reverse.
+Invoker         → Accepts commands, decides when to run them. Only sees the Command interface.
+Client          → Creates commands, wires receiver into them, hands them to the invoker.
+```
+
+**What each role knows (and doesn't know):**
+
+- **Receiver** knows nothing about commands, invokers, or the pattern itself. It's a plain domain object with methods like `placeBuyOrder()`, `light.on()`. It exists independently of the pattern.
+- **ConcreteCommand** knows its receiver and holds all the parameters needed to call a specific method on it. It also knows the _reverse_ operation (e.g., undo of buy = cancel). All fields are `final` — a command is an immutable snapshot of intent.
+- **Invoker** only knows the `Command` interface. It never imports or references any concrete command or receiver. This is what makes it permanently closed to modification — it manages lifecycle (queue, execute, undo, log) without knowing what any operation actually does.
+- **Client** is the only place that knows everything — it creates receivers, wraps them in concrete commands, and hands the commands to the invoker. All wiring happens here.
+
+**Critical rule:** The Invoker is _blind_. It only calls `execute()` and `undo()`. This is not just clean design — it's the mechanical prerequisite for queueing, logging, and undo to work generically across all operation types without the Invoker changing.
+
+### How the Pieces Connect — Execution Flow
+
+Trace a single button press on the remote control to see every role in action:
+
+```
+1. Client (main)  → Creates Light receiver, wraps it in LightCommand, assigns to slot 0
+2. Client (main)  → Calls remote.pressButton(0)
+3. Invoker        → Looks up slot 0, finds an ICommand (doesn't know it's a LightCommand)
+4. Invoker        → Calls command.execute()
+5. ConcreteCommand → LightCommand.execute() calls this.light.on()
+6. Receiver       → Light.on() prints "Light turned On!"
+```
+
+The Invoker (step 3-4) never imports `Light`, `LightCommand`, or `Fan`. Its only import is `ICommand`. You can verify this by checking `RemoteControlInvoker.java` — its import list proves its blindness. This is the mechanical proof that adding new devices requires zero changes to the Invoker.
+
+**What changes on the second press?** The Invoker tracks a boolean toggle per slot. Second press → calls `command.undo()` → `LightCommand.undo()` → `light.off()`. The Invoker doesn't know what "undo" means — it just calls the method.
 
 ---
 
-### Concrete Command — `CancelOrderCommand.java`
+## How Undo Actually Works
 
-```java
-/**
- * Undo of a cancellation = reinstate the original order.
- * The command holds enough context to reverse itself without asking anyone else.
- */
-public class CancelOrderCommand implements TradeCommand {
+Undo isn't magic — it works because each command carries its own reverse operation.
 
-    private final OrderBook orderBook;
-    private final String orderId;
-    private final String ticker;
-    private final int quantity;
-    private final double price;
-    private final String side; // "BUY" or "SELL"
-
-    public CancelOrderCommand(OrderBook orderBook, String orderId,
-                              String ticker, int quantity, double price, String side) {
-        this.orderBook = orderBook;
-        this.orderId   = orderId;
-        this.ticker    = ticker;
-        this.quantity  = quantity;
-        this.price     = price;
-        this.side      = side;
-    }
-
-    @Override
-    public void execute() {
-        orderBook.cancelOrder(orderId);
-    }
-
-    @Override
-    public void undo() {
-        // Undoing a cancellation reinstates the original order
-        orderBook.reinstateOrder(orderId);
-    }
-
-    @Override
-    public String getAuditDescription() {
-        return String.format("CANCEL %s order %s (%d x %s @ %.2f)",
-                side, orderId, quantity, ticker, price);
-    }
-}
 ```
+PlaceBuyOrderCommand:
+    execute() → orderBook.placeBuyOrder(ticker, qty, price)
+    undo()    → orderBook.cancelOrder(orderId)
+
+CancelOrderCommand:
+    execute() → orderBook.cancelOrder(orderId)
+    undo()    → orderBook.reinstateOrder(orderId)
+```
+
+The Invoker maintains a history stack. When `undoLast()` is called, it pops the most recent command and calls `undo()`. The Invoker doesn't know _what_ "undo" means for that command — it just calls the method. Each command defines its own reversal internally.
+
+This only works because every command holds enough state to reverse itself. A `PlaceBuyOrderCommand` stores the `orderId` even though `execute()` doesn't need it — `undo()` does. This is the "self-sufficient command" principle: **a command must carry everything needed for both execution and reversal.**
 
 ---
 
-### The Invoker — `BrokerageGateway.java`
+## The Three Jobs
 
-The engine. It owns the execution queue, the audit log, and the undo history.
-It has zero knowledge of what any specific order does — it only ever calls `.execute()` and `.undo()`.
-
-```java
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
-
-public class BrokerageGateway {
-
-    // Orders staged before market opens
-    private final List<TradeCommand> pendingQueue = new ArrayList<>();
-
-    // History of executed commands (used for undo)
-    private final Deque<TradeCommand> executedHistory = new ArrayDeque<>();
-
-    // Immutable regulatory audit trail — never deleted
-    private final List<String> auditLog = new ArrayList<>();
-
-    public void queue(TradeCommand command) {
-        pendingQueue.add(command);
-        System.out.println("[Gateway] Queued: " + command.getAuditDescription());
-    }
-
-    public void executeNow(TradeCommand command) {
-        command.execute();
-        executedHistory.push(command);
-        auditLog.add("[EXECUTED] " + command.getAuditDescription());
-    }
-
-    // Called when market opens — flush all pre-market orders
-    public void flushQueue() {
-        System.out.println("\n[Gateway] Market open — flushing " + pendingQueue.size() + " queued orders");
-        for (TradeCommand command : pendingQueue) {
-            executeNow(command);
-        }
-        pendingQueue.clear();
-    }
-
-    public void undoLast() {
-        if (executedHistory.isEmpty()) {
-            System.out.println("[Gateway] Nothing to undo.");
-            return;
-        }
-        TradeCommand command = executedHistory.pop();
-        command.undo();
-        auditLog.add("[UNDONE]   " + command.getAuditDescription());
-    }
-
-    public void printAuditLog() {
-        System.out.println("\n=== AUDIT LOG ===");
-        auditLog.forEach(System.out::println);
-    }
-}
-```
+1. **Decouple** who requests an operation from who performs it — the client submits a command, the invoker runs it, neither knows about the other's internals
+2. **Store** operations as persistent, replayable data — you can serialize a command to a database row and replay it tomorrow (this is how audit logs, crash recovery, and event sourcing work)
+3. **Operate on operations** — once an operation is an object, you can undo it, queue it, batch it, retry it, and log it using the same generic mechanism, regardless of what the operation actually does
 
 ---
 
-### Client — `TradingDeskMain.java`
+## Where It Shows Up in Production
 
-```java
-public class TradingDeskMain {
+| System                               | Command in disguise                                                                                                                                 |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Java `Runnable`/`Callable`**       | `Runnable` = Command interface. `ThreadPoolExecutor` = Invoker. Your task class = ConcreteCommand. You've been using Command since day one of Java. |
+| **RDBMS WAL**                        | SQL statements are parsed into command objects and appended to a Write-Ahead Log. Rollback = replaying undo in reverse from the log.                |
+| **Trading systems**                  | Buy/sell orders queued in order books, matched, cancelled, audited. FIX protocol structures inter-broker communication entirely this way.           |
+| **Message queues (Kafka, RabbitMQ)** | Messages = command objects. Consumer = Invoker. Handler = Receiver.                                                                                 |
+| **Git**                              | Each commit = recorded, addressable, replayable command. `git revert` = `command.undo()`.                                                           |
+| **Spring Batch**                     | Each `Step` in a batch job is a command object with built-in retry, skip, and rollback.                                                             |
 
-    public static void main(String[] args) {
-        OrderBook orderBook = new OrderBook();
-        BrokerageGateway gateway = new BrokerageGateway();
-
-        // Pre-market: queue orders before exchange opens
-        gateway.queue(new PlaceBuyOrderCommand(orderBook,  "ORD-001", "HDFC",     50, 1620.00));
-        gateway.queue(new PlaceBuyOrderCommand(orderBook,  "ORD-002", "TCS",     100, 3790.00));
-        gateway.queue(new PlaceSellOrderCommand(orderBook, "ORD-003", "INFY",     75, 1510.00));
-
-        // Market opens: all queued orders execute
-        gateway.flushQueue();
-
-        // Live trading: immediate execution
-        gateway.executeNow(new PlaceBuyOrderCommand(orderBook, "ORD-004", "RELIANCE", 200, 2450.00));
-
-        // User cancels the order they just placed
-        gateway.executeNow(new CancelOrderCommand(orderBook, "ORD-004", "RELIANCE", 200, 2450.00, "BUY"));
-
-        // User changes their mind — undo the cancellation (reinstates the order)
-        System.out.println("\n[Desk] Undoing last action...");
-        gateway.undoLast();
-
-        // Print full regulatory audit trail
-        gateway.printAuditLog();
-    }
-}
-```
-
-**Output:**
-
-```
-[Gateway] Queued: BUY 50 x HDFC @ 1620.00 [orderId=ORD-001]
-[Gateway] Queued: BUY 100 x TCS @ 3790.00 [orderId=ORD-002]
-[Gateway] Queued: SELL 75 x INFY @ 1510.00 [orderId=ORD-003]
-
-[Gateway] Market open — flushing 3 queued orders
-[OrderBook] BUY  50 x HDFC @ 1620.00 submitted to exchange
-[OrderBook] BUY  100 x TCS @ 3790.00 submitted to exchange
-[OrderBook] SELL 75 x INFY @ 1510.00 submitted to exchange
-[OrderBook] BUY  200 x RELIANCE @ 2450.00 submitted to exchange
-[OrderBook] Order ORD-004 CANCELLED
-
-[Desk] Undoing last action...
-[OrderBook] Order ORD-004 REINSTATED
-
-=== AUDIT LOG ===
-[EXECUTED] BUY 50 x HDFC @ 1620.00 [orderId=ORD-001]
-[EXECUTED] BUY 100 x TCS @ 3790.00 [orderId=ORD-002]
-[EXECUTED] SELL 75 x INFY @ 1510.00 [orderId=ORD-003]
-[EXECUTED] BUY 200 x RELIANCE @ 2450.00 [orderId=ORD-004]
-[EXECUTED] CANCEL BUY order ORD-004 (200 x RELIANCE @ 2450.00)
-[UNDONE]   CANCEL BUY order ORD-004 (200 x RELIANCE @ 2450.00)
-```
+The pattern is everywhere in production — it just doesn't always announce itself by name.
 
 ---
 
-## What This Example Actually Demonstrates
+## When to Use / When Not to Use
 
-Notice what `BrokerageGateway` does **not** contain:
+**Use when:**
 
-- No `if (type == BUY)` checking
-- No switch on order type
-- No knowledge of tickers, quantities, or prices
-- No knowledge of what "undo" means for any particular order
+- Operations need to be **queued, scheduled, or deferred**
+- You need an **audit trail** (financial, medical, legal systems)
+- You need **undo/redo**
+- You need **retry on failures**
+- New operation types should not require changing the dispatcher (Open/Closed Principle)
 
-It only calls `.execute()` and `.undo()`. You can add 10 new order types —
-`StopLossOrderCommand`, `BracketOrderCommand`, `GoodTillCancelledCommand` — and the Gateway code does not change at all. That is the Open/Closed Principle flowing directly from the Command pattern.
+**Skip when:**
 
-The audit log also works for free. The Gateway never inspects what happened — each command describes itself via `getAuditDescription()`. The log writes itself.
+- A direct method call is sufficient — no queue, no history, no undo
+- The operation has no meaningful reverse and never needs to be stored
+- You'd be creating a class to wrap a single line (the "light bulb problem")
+
+**Cost:** One class per operation type. Justified when the operation carries reversal state, needs storage, or must be decoupled from the trigger.
 
 ---
 
-## The Pattern's Three Real Jobs
+## Examples in This Directory
 
-**1. Decouple who requests an operation from who performs it**
-The client submits a `TradeCommand`. The gateway runs it. Neither knows about the other's internals.
+### 1. Remote Control — `RemoteControlSmartAppliance/`
 
-**2. Make operations into persistent, storable data**
-You can serialize a `PlaceBuyOrderCommand` to a database row and replay it tomorrow.
-This is exactly how exchange systems achieve crash recovery and regulatory compliance.
+Introductory example. A remote control (Invoker) toggles smart appliances (Receivers) via button slots that hold commands. Demonstrates the basic wiring and execute/undo toggle.
 
-**3. Enable operations on operations**
-Once an operation is an object — not a bare method call — you can undo it, queue it, batch it, retry it, and log it using the same generic mechanism regardless of what the operation actually does.
+| Role              | File                                                   |
+| ----------------- | ------------------------------------------------------ |
+| Receiver          | `Receiver/Light.java`, `Receiver/Fan.java`             |
+| Command Interface | `Command/ICommand.java`                                |
+| Concrete Commands | `Command/LightCommand.java`, `Command/FanCommand.java` |
+| Invoker           | `RemoteControlInvoker.java`                            |
+| Client            | `CommandPatternMain.java`                              |
+
+The Invoker here is simple — it holds an array of `ICommand` slots and a boolean toggle per slot. Press once → `execute()`. Press again → `undo()`. It never imports `Light`, `Fan`, or any concrete command.
+
+### From Remote Control to Brokerage — What Escalates
+
+The pattern is identical. What changes is the _complexity the Invoker manages_:
+
+| Aspect            | Remote Control                | Brokerage Gateway                                                |
+| ----------------- | ----------------------------- | ---------------------------------------------------------------- |
+| Receiver          | `Light`, `Fan` — toy devices  | `OrderBook` — exchange-connected domain                          |
+| Command interface | `execute()` + `undo()`        | adds `getAuditDescription()` for compliance                      |
+| Command state     | receiver reference only       | receiver + orderId + ticker + qty + price                        |
+| Invoker state     | button slots + toggle boolean | order queue + execution history stack + audit log + market state |
+| Invoker decisions | toggle on/off                 | queue vs. execute (market hours), flush on market open           |
+
+The Invoker in both cases only imports the Command interface — never a concrete command or receiver. The brokerage gateway is more sophisticated, but it's still _blind to what it's executing_.
+
+### 2. Brokerage Order Execution Engine — `BrokerageOrderExecutionEngine/`
+
+Production-style example. A brokerage gateway (Invoker) manages pre-market queueing, live execution, undo, and audit trail — all without knowing what any specific order does.
+
+| Role              | File                                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------ |
+| Receiver          | `Receiver/OrderBook.java`                                                                                    |
+| Command Interface | `Command/ICommand.java`                                                                                      |
+| Concrete Commands | `Command/PlaceBuyOrderCommand.java`, `Command/PlaceSellOrderCommand.java`, `Command/CancelOrderCommand.java` |
+| Invoker           | `BrokerageGatewayInvoker.java`                                                                               |
+| Client            | `TradingDeskMain.java`                                                                                       |
+
+**Key design choices:**
+
+- **Market-aware routing:** `executeNow()` checks `isMarketOpen` — if closed, it auto-routes to the queue. When `marketOpen()` is called, it flushes all queued commands. The Invoker decides _when_ to execute, commands don't care.
+- **Self-sufficient commands:** Each command holds enough state to reverse itself. `PlaceBuyOrderCommand` stores `orderId` for its `undo()` even though `execute()` doesn't need it. `CancelOrderCommand.undo()` calls `reinstateOrder()`.
+- **Self-describing audit:** The gateway calls `getAuditDescription()` after every execute/undo. No type-checking, no `instanceof`, no switch. Each command describes itself.
+- **Extensibility:** Adding `StopLossOrderCommand` requires one new class + one wiring line in the client. Zero changes to the gateway. The audit trail, undo, and queueing work automatically.
 
 ---
 
 ## Bonus — Batch / Macro Command
 
-The same pattern gives you atomic batch execution for free:
+A command that contains a list of commands. `execute()` runs all; `undo()` reverses all in reverse order. This gives you atomic batch execution for free — the Invoker still just calls `execute()` on one object.
 
 ```java
-public class BatchTradeCommand implements TradeCommand {
+public class BatchCommand implements ICommand {
+    private final List<ICommand> commands;
 
-    private final List<TradeCommand> commands;
+    public void execute() { commands.forEach(ICommand::execute); }
 
-    public BatchTradeCommand(List<TradeCommand> commands) {
-        this.commands = new ArrayList<>(commands);
-    }
-
-    @Override
-    public void execute() {
-        commands.forEach(TradeCommand::execute);
-    }
-
-    @Override
     public void undo() {
-        // Undo in reverse order so rollback is clean
-        ListIterator<TradeCommand> it = commands.listIterator(commands.size());
-        while (it.hasPrevious()) {
-            it.previous().undo();
-        }
-    }
-
-    @Override
-    public String getAuditDescription() {
-        return "BATCH of " + commands.size() + " orders";
+        // Reverse order — last executed is first undone
+        ListIterator<ICommand> it = commands.listIterator(commands.size());
+        while (it.hasPrevious()) it.previous().undo();
     }
 }
 ```
 
-One undo rolls back the entire batch atomically. This is how algorithmic trading systems submit and roll back multi-leg strategies.
+The Invoker doesn't know it just ran 5 operations — it called `execute()` once. This is how algorithmic trading systems submit and roll back multi-leg strategies atomically.
 
----
+This ties back to the three jobs:
 
-## When to Use It
-
-- You need operations to be **queued, scheduled, or deferred**
-- You need an **audit trail** of every action (financial, medical, legal systems)
-- You need **undo/redo**
-- You need **retry logic** on failures
-- You want to add new operations **without touching the dispatcher**
-
-## When Not to Use It
-
-- You just need to call a method. Use a method.
-- There is no queuing, history, logging, or undo requirement.
-- The operation has no meaningful inverse and will never need to be stored or deferred.
-- You would be creating a class just to wrap a single line — that is the light bulb problem.
-
-The cost of this pattern is one class per operation type. That cost is justified when the operation needs to carry state (especially reversal state), be stored, or be decoupled from whomever triggered it.
+- **Decouple:** The batch command is a new operation type — the Invoker doesn't change.
+- **Store:** The batch itself is a command — it can be logged, serialized, replayed.
+- **Operate on operations:** Undo-of-batch = undo each sub-command in reverse. Retry-of-batch = re-execute all. The generic mechanism handles it.

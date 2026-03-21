@@ -1,8 +1,8 @@
-package T03_DesignPatterns.DP06_Command.Command;
+package T03_DesignPatterns.DP06_Command.RemoteControlSmartAppliance.Command;
 
-import T03_DesignPatterns.DP06_Command.Receiver.Light;
+import T03_DesignPatterns.DP06_Command.RemoteControlSmartAppliance.Receiver.Light;
 
-public class LightCommand implements ICommand{
+public class LightCommand implements ICommand {
     private final Light light;
 
     public LightCommand(Light light) {
