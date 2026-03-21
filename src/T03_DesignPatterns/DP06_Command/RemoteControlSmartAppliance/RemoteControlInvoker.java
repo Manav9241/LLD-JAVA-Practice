@@ -1,9 +1,8 @@
-package T03_DesignPatterns.DP06_Command;
-
-import T03_DesignPatterns.DP06_Command.Command.ICommand;
+package T03_DesignPatterns.DP06_Command.RemoteControlSmartAppliance;
 
 import java.util.ArrayList;
 import java.util.List;
+import T03_DesignPatterns.DP06_Command.RemoteControlSmartAppliance.Command.ICommand;
 
 public class RemoteControlInvoker {
     private static final int numberOfButtons = 4;
@@ -13,14 +12,14 @@ public class RemoteControlInvoker {
     public RemoteControlInvoker() {
         this.buttons = new ArrayList<>(numberOfButtons);
         this.isPressed = new ArrayList<>(numberOfButtons);
-        for (int i = 0; i<numberOfButtons; i++) {
+        for (int i = 0; i < numberOfButtons; i++) {
             buttons.add(null);
             isPressed.add(false);
         }
     }
 
     public void setButton(int index, ICommand command) {
-        if (index >=0 && index < numberOfButtons) {
+        if (index >= 0 && index < numberOfButtons) {
             buttons.set(index, command);
             isPressed.set(index, false);
         }

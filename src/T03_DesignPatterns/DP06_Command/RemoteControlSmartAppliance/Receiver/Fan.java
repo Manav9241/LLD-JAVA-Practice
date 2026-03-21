@@ -1,4 +1,4 @@
-package T03_DesignPatterns.DP06_Command.Receiver;
+package T03_DesignPatterns.DP06_Command.RemoteControlSmartAppliance.Receiver;
 
 public class Fan {
     public void start() {

@@ -1,8 +1,8 @@
-package T03_DesignPatterns.DP06_Command.Command;
+package T03_DesignPatterns.DP06_Command.RemoteControlSmartAppliance.Command;
 
-import T03_DesignPatterns.DP06_Command.Receiver.Fan;
+import T03_DesignPatterns.DP06_Command.RemoteControlSmartAppliance.Receiver.Fan;
 
-public class FanCommand implements ICommand{
+public class FanCommand implements ICommand {
     private final Fan fan;
 
     public FanCommand(Fan fan) {
