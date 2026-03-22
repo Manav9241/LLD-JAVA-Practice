@@ -23,6 +23,8 @@ A concrete, real-world system described in plain language. Give enough context t
 
 List the functional requirements the system must support. These describe WHAT the system needs to do, not HOW to structure the code. Each requirement should map to a capability that the concept being practiced enables.
 
+**Requirements are constraints and behavioral rules, not feature descriptions.** A requirement should state a rule the system must obey, a constraint that forces a design decision, or a behavioral nuance that isn't obvious from the domain operations alone. If a requirement reads like it could be a line item in domain operations, it's probably a feature — move it there. See the [examples](examples/) for concrete illustrations of this distinction.
+
 Example:
 
 > 1. Orders submitted before market hours must be held and only executed when the market opens.
@@ -32,6 +34,8 @@ Example:
 ### 3. Domain Operations
 
 List the concrete operations the system can perform, with their inputs. This gives the user a starting point for thinking about what their receiver/domain object needs.
+
+**Domain operations must not repeat information already stated in requirements.** Requirements state rules and constraints; domain operations list verbs with inputs. If both sections say the same thing in different formats, collapse the feature into domain operations and keep only the constraint in requirements.
 
 Example:
 
@@ -52,8 +56,19 @@ The guiding questions should vary per concept. They orient the user toward the r
 - Pattern-specific role names (don't say "create a Receiver" or "your Invoker should...")
 - Solution structure or architecture hints
 - Code snippets
+- Architecture language disguised as requirements (e.g., "single uniform interface," "centralized place," "interchangeable at runtime")
 
 The problem describes the PROBLEM, not the SOLUTION.
+
+### 6. Generating from existing code
+
+When creating a problem statement from an existing implementation (e.g., a completed branch), **do not reverse-engineer the code into requirements.** Describing what each class does and calling it a requirement produces a summary, not a problem statement.
+
+Instead:
+
+1. Set the code aside. Write the problem statement from the **user's perspective** — what does a user of this system need?
+2. Then cross-check against the code to make sure you haven't missed a behavioral rule or constraint.
+3. If a requirement sounds like it's describing a class, an interface, or an architectural decision — it's solution language. Rewrite it as the user-facing need it serves.
 
 ---
 
@@ -104,6 +119,9 @@ After the user shares their implementation, review against these criteria. Give 
 
 ---
 
-## Example
+## Examples
 
-See [examples/brokerage-command-pattern.md](examples/brokerage-command-pattern.md) for a complete example of a problem statement with hints, applied to the Command design pattern.
+See the [examples/](examples/) directory for complete problem statements with hints:
+
+- [brokerage-command-pattern.md](examples/brokerage-command-pattern.md) — Single-pattern exercise (Command). Shows requirements as behavioral rules, not feature lists.
+- [music-player-multi-pattern.md](examples/music-player-multi-pattern.md) — Multi-pattern exercise (Adapter, Factory, Strategy, Facade, Singleton). Shows how to separate constraints from features, and how to write a problem statement from existing code without reverse-engineering it.
